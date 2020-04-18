@@ -24,7 +24,8 @@
 ;; read-prompt should take a single PROMPT argument defaults to read-string
 (defvar my/goto-classes
   '((:uri)
-    (:eshell . read-directory-name)))
+    (:eshell . read-directory-name)
+    (:term . read-directory-name)))
 
 ;; define a generic (xristos-fu)
 (cl-defgeneric my/goto-dispatch (class goto)
@@ -39,6 +40,11 @@
   "Visit GOTO based on CLASS."
   (let ((default-directory goto))
     (eshell t)))
+
+(cl-defmethod my/goto-dispatch ((class (eql :term)) goto)
+  "Visit GOTO based on CLASS."
+  (let ((default-directory goto))
+    (term "fish")))
 
 ;; fall-through method
 (cl-defmethod my/goto-dispatch (class goto)
