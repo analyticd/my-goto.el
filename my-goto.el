@@ -25,7 +25,9 @@
 (defvar my/goto-classes
   '((:uri)
     (:eshell . read-directory-name)
-    (:term . read-directory-name)))
+    (:term . read-directory-name)
+    (:file . read-file-name)
+    (:pdf . read-file-name)))
 
 ;; define a generic (xristos-fu)
 (cl-defgeneric my/goto-dispatch (class goto)
@@ -45,6 +47,14 @@
   "Visit GOTO based on CLASS."
   (let ((default-directory goto))
     (term "fish")))
+
+(cl-defmethod my/goto-dispatch ((class (eql :file)) goto)
+  "Visit GOTO based on CLASS."
+  (find-file goto))
+
+(cl-defmethod my/goto-dispatch ((class (eql :pdf)) goto)
+  "Visit GOTO based on CLASS."
+  (find-file goto))
 
 ;; fall-through method
 (cl-defmethod my/goto-dispatch (class goto)
