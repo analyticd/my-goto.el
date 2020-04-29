@@ -80,7 +80,7 @@
     (my/goto-dispatch class goto)))
 
 ;;;###autoload
-(defun my/goto-bookmark-location (class location &optional label)
+(defun my/goto-bookmark-location (class location &optional label tags-list)
   "Bookmark LOCATION of CLASS under optional LABEL."
   (interactive
    (let* ((class (read (completing-read "class: " my/goto-classes)))
@@ -90,18 +90,24 @@
            (if (functionp get-location)
                (funcall get-location prompt)
              ;; default to read-string
-             (read-string prompt)))
-          (label (read-string "label: " nil nil location)))
-     (list class location label)))
-  (unless (equal label "")
-    (let ((label (or label location)))
-      (bookmark-store
-       ;; prepend any goto labels with their class
-       (format "%s %s" class label)
+             (read-string prompt (when (derived-mode-p 'w3m-mode)
+                                   w3m-current-url))))
+          (label (read-string "label: " location nil location))
+          (tags-list (read (read-string "tags (e.g., '(\"haskell\" \"monads\")): " "'(nil)"))))
+     (list class location label tags-list)))
+  (let ((label (or label location)))
+    (bookmark-store
+     ;; prepend any goto labels with their class
+     (format "%s %s" class label)
+     (if (not (eq tags-list '(nil)))
+         `((filename . ,location)
+           (tags     . ,tags-list)
+           (handler  . my/goto-bookmark-handler)
+           (goto     . (,class ,location)))
        `((filename . ,location)
-         (handler . my/goto-bookmark-handler)
-         (goto . (,class ,location)))
-       nil))))
+         (handler  . my/goto-bookmark-handler)
+         (goto     . (,class ,location))))
+     nil)))
 
 (provide 'my-goto)
 ;;; my-goto.el ends here
