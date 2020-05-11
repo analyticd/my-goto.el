@@ -27,6 +27,7 @@
     (:eshell . read-directory-name)
     (:term . read-directory-name)
     (:file . read-file-name)
+    (:directory  . read-directory-name)
     (:pdf . read-file-name)))
 
 ;; define a generic (xristos-fu)
@@ -49,6 +50,10 @@
     (term "fish")))
 
 (cl-defmethod my/goto-dispatch ((class (eql :file)) goto)
+  "Visit GOTO based on CLASS."
+  (find-file goto))
+
+(cl-defmethod my/goto-dispatch ((class (eql :directory)) goto)
   "Visit GOTO based on CLASS."
   (find-file goto))
 
